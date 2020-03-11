@@ -15,7 +15,7 @@ variable "AMIS" {
   default = {
     us-east-2 = "ami-08cec7c429219e339"
     us-west-2 = "ami-06b94666"
-    us-east-2 = "ami-0f630a3f40b1eb0b8"
+    us-east-1 = "ami-0f630a3f40b1eb0b8"
   }
 }
 

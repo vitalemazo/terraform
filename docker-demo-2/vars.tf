@@ -17,9 +17,9 @@ variable "ECS_INSTANCE_TYPE" {
 variable "ECS_AMIS" {
   type = map(string)
   default = {
-    us-east-2 = "ami-0e01ce4ee18447327"
-    us-east-1 = "ami-0fc61db8544a617ed"
-    us-west-1 = "ami-09a7fe78668f1e2c0"
+    us-east-2 = "ami-0c0415cdff14e2a4a"
+    us-east-1 = "ami-098616968d61e549e"
+    us-west-2 = "ami-014a2e30da708ee8b"
 
   }
 }

@@ -1,39 +1,67 @@
-# terraform-course
+# terraform-modules
+repository of useful terraform modules
 
-* These files are part of my Udemy course about Terraform
-* Course URL: https://www.udemy.com/learn-devops-infrastructure-automation-with-terraform/?couponCode=TERRAFORM_GIT
+# Usage
 
-# Compatibility
+## ECS Cluster
+```
+module "my-ecs" {
+  source         = "github.com/in4it/terraform-modules//modules/ecs-cluster"
+  VPC_ID         = "vpc-id"
+  CLUSTER_NAME   = "my-ecs"
+  INSTANCE_TYPE  = "t2.small"
+  SSH_KEY_NAME   = "mykeypairName"
+  VPC_SUBNETS    = "subnetId-1,subnetId-2"
+  ENABLE_SSH     = true
+  SSH_SG         = "my-ssh-sg"
+  LOG_GROUP      = "my-log-group"
+  AWS_ACCOUNT_ID = "1234567890"
+  AWS_REGION     = "us-east-1"
+}
+```
 
-* This is the >=terraform-0.12 branch. For compatibility with older versions, use the terraform-0.11 branch.
+## ECS Service
+```
+module "my-service" {
+  source              = "github.com/in4it/terraform-modules//modules/ecs-service"
+  VPC_ID              = "vpc-id"
+  APPLICATION_NAME    = "my-service"
+  APPLICATION_PORT    = "8080"
+  APPLICATION_VERSION = "latest"
+  CLUSTER_ARN         = "${module.my-ecs.cluster_arn}"
+  SERVICE_ROLE_ARN    = "${module.my-ecs.service_role_arn}"
+  AWS_REGION          = "us-east-1"
+  HEALTHCHECK_MATCHER = "200"
+  CPU_RESERVATION     = "1024"
+  MEMORY_RESERVATION  = "1024"
+  LOG_GROUP           = "my-log-group"
+  DESIRED_COUNT       = 2
+  ALB_ARN             = "${module.my-alb.alb_arn}"
+}
+```
 
-# Demo overview
-Demo Directory | Description
------------- | -------------
-first-steps | First steps
-demo-1 | First steps: Launching an EC2 instance
-demo-2 | Using provisioner
-demo-2b | Using provisioner on a Windows instance
-demo-3 | Executing script locally
-demo-4 | Outputting
-demo-5 | Data Source
-demo-6 | Modules
-demo-7 | AWS VPC
-demo-8 | EC2 instance within VPC with securitygroup
-demo-9 | EC2 instance with EBS volumes
-demo-10 | Userdata and cloudinit
-demo-11 | Route53 (DNS)
-demo-12 | RDS
-demo-13 | IAM
-demo-14 | IAM Roles with S3 bucket
-demo-15 | Autoscaling
-demo-16 | Autoscaling with ELB (Elastic Load Balancer)
-demo-17 | Elastic Beanstalk PHP 7 stack with RDS
-demo-18 | Interpolations, VPC module
-demo-18b | Project structure, best practices
-packer-demo | Build AMIs with Packer
-jenkins-packer-demo | Demo with jenkins and Packer
-docker-demo-1 | Using ECR - The EC2 Container Registry
-docker-demo-2 | Using ECS - The EC2 Container Service
-docker-demo-3 | Using ECR/ECS with Jenkins in a complete workflow
-module-demo | Using ECS + ALB in 4 modules to show how developing terraform modules work
+## ALB
+```
+module "my-alb" {
+  source             = "github.com/in4it/terraform-modules/modules/alb"
+  VPC_ID             = "vpc-id"
+  ALB_NAME           = "my-alb"
+  VPC_SUBNETS        = "subnetId-1,subnetId-2"
+  DEFAULT_TARGET_ARN = "${module.my-service.target_group_arn}"
+  DOMAIN             = "*.my-ecs.com"
+  INTERNAL           = false
+  ECS_SG             = "${module.my-ecs.cluster_sg}"
+}
+```
+
+## ALB Rule
+```
+module "my-alb-rule" {
+  source             = "github.com/in4it/terraform-modules/modules/alb-rule"
+  LISTENER_ARN       = "${module.my-alb.http_listener_arn}"
+  PRIORITY           = 100
+  TARGET_GROUP_ARN   = "${module.my-service.target_group_arn}"
+  CONDITION_FIELD    = "host-header"
+  CONDITION_VALUES   = ["subdomain.my-ecs.com"]
+}
+```

@@ -5,7 +5,7 @@ module "my-ecs" {
   source         = "github.com/in4it/terraform-modules//modules/ecs-cluster?ref=terraform-0.12"
   VPC_ID         = module.vpc.vpc_id
   CLUSTER_NAME   = "my-ecs"
-  INSTANCE_TYPE  = "t2.small"
+  INSTANCE_TYPE  = "t2.micro"
   SSH_KEY_NAME   = aws_key_pair.mykeypair.key_name
   VPC_SUBNETS    = join(",", module.vpc.public_subnets)
   ENABLE_SSH     = true
@@ -38,7 +38,7 @@ module "my-alb" {
   ALB_NAME           = "my-alb"
   VPC_SUBNETS        = join(",", module.vpc.public_subnets)
   DEFAULT_TARGET_ARN = module.my-service.target_group_arn
-  DOMAIN             = "*.ecs.newtech.academy"
+  DOMAIN             = "*.vitalemazo.com"
   INTERNAL           = false
   ECS_SG             = module.my-ecs.cluster_sg
 }
